@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MOCK_CREATORS } from '../constants';
-import { Sparkles, X, Play, UserPlus, BarChart3, Loader2, CheckCircle, ArrowRight, Zap } from 'lucide-react';
+import { Sparkles, X, Play, UserPlus, BarChart3, Loader2, CheckCircle, ArrowRight, Zap, Instagram, Youtube, Send, BarChart2, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Creator, AISearchResult } from '../types';
 import { findCreatorsWithAI } from '../services/gemini';
+import CreatorRadarChart from '../components/CreatorRadarChart';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Gallery: React.FC = () => {
   const { t, language } = useLanguage();
@@ -12,7 +15,6 @@ const Gallery: React.FC = () => {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [scannedCount, setScannedCount] = useState(218000);
   
-  // Search States
   const [loading, setLoading] = useState(false);
   const [searchResult, setSearchResult] = useState<AISearchResult | null>(null);
   const [searchSteps, setSearchSteps] = useState<string[]>([]);
@@ -94,7 +96,6 @@ const Gallery: React.FC = () => {
     setDisplayCreators(aiResult.creators);
     setLoading(false);
     
-    // Scroll to results
     const resultsSection = document.getElementById('results-grid');
     if (resultsSection) {
       resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -109,7 +110,6 @@ const Gallery: React.FC = () => {
 
   return (
     <div className="pt-32 md:pt-48 pb-32 bg-white min-h-screen selection:bg-indigo-600 selection:text-white relative">
-      
       {/* Search Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 z-[200] bg-white/80 backdrop-blur-2xl flex flex-col items-center justify-center p-6">
@@ -128,7 +128,6 @@ const Gallery: React.FC = () => {
       )}
 
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
-        
         {/* Header Section */}
         <header className="flex flex-col md:flex-row justify-between items-center md:items-end mb-24 md:mb-40 gap-12 md:gap-16 reveal active">
            <div className="space-y-4 md:space-y-6 text-center md:text-left">
@@ -210,169 +209,184 @@ const Gallery: React.FC = () => {
           </div>
         </section>
 
-        {/* AI Insight Box for Search Results */}
-        {searchResult && (
-          <section className="max-w-5xl mx-auto mb-32 reveal active">
-            <div className="bg-gray-50 border border-gray-100 rounded-[3rem] p-12 relative overflow-hidden">
-              <div className="absolute -top-10 -right-10 opacity-5">
-                <Sparkles size={300} />
-              </div>
-              <div className="flex items-center gap-6 mb-8">
-                <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100">
-                  <Zap size={24} />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-extrabold serif text-black leading-none mb-2">{t.gallery.verdict}</h3>
-                  <p className="text-[10px] font-black uppercase tracking-ultra text-gray-400">Match Accuracy: {(searchResult.confidence * 100).toFixed(0)}%</p>
-                </div>
-              </div>
-              <p className="text-xl md:text-2xl font-light italic text-gray-700 leading-relaxed border-l-4 border-indigo-600 pl-8">
-                "{searchResult.aiReasoning}"
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* Immersive Gallery Grid */}
-        <section id="results-grid" className="columns-1 md:columns-2 lg:columns-3 gap-8 md:gap-12 space-y-8 md:space-y-12 mb-32 md:mb-48">
+        {/* Gallery Grid */}
+        <section id="results-grid" className="columns-1 md:columns-2 lg:columns-3 gap-8 md:gap-12 space-y-8 md:space-y-12 mb-32">
           {displayCreators.map((creator, idx) => (
             <div 
               key={creator.id}
               onClick={() => setSelectedCreator(creator)}
-              className={`reveal break-inside-avoid group relative rounded-[2.5rem] md:rounded-[3rem] overflow-hidden cursor-pointer transition-all duration-1000 bg-white border-[0.5px] border-gray-100 shadow-2xl ${idx % 2 === 1 ? 'lg:translate-y-12' : ''}`}
+              className="reveal break-inside-avoid group relative rounded-[2.5rem] md:rounded-[3rem] overflow-hidden cursor-pointer transition-all duration-1000 bg-white border-[0.5px] border-gray-100 shadow-2xl"
             >
               <div className="relative overflow-hidden">
                 <img src={creator.avatar} className="w-full h-auto object-cover transition-transform duration-[3s] group-hover:scale-110 grayscale group-hover:grayscale-0" alt={creator.name} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 transition-opacity duration-700"></div>
-                
-                {/* Match Badge for Results */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                 {searchResult && (
-                  <div className="absolute top-8 right-8 bg-indigo-600 text-white px-4 py-2 rounded-full text-[9px] font-black tracking-ultra uppercase shadow-lg shadow-indigo-600/40">
-                    98.5% Match
+                  <div className="absolute top-8 right-8 bg-indigo-600 text-white px-4 py-2 rounded-full text-[9px] font-black tracking-ultra uppercase shadow-lg">
+                    {Math.floor(Math.random() * 5 + 95)}% Match
                   </div>
                 )}
               </div>
-              
-              <div className="absolute bottom-10 md:bottom-12 left-10 md:left-12 right-10 md:right-12 transition-all duration-700 translate-y-0 group-hover:-translate-y-10">
+              <div className="absolute bottom-10 left-10 right-10">
                 <p className="text-white font-bold text-3xl md:text-4xl serif mb-2 tracking-tighter leading-tight">{creator.name}</p>
-                <div className="flex items-center gap-3 md:gap-4">
-                  <span className="text-white/40 text-[9px] font-black uppercase tracking-ultra">#{creator.styles[0]}</span>
-                  <div className="h-[1px] w-6 md:w-8 bg-white/20"></div>
-                  <span className="text-indigo-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0">{creator.stats.vitIndex} VIT</span>
-                </div>
-              </div>
-
-              <div className="absolute inset-0 bg-indigo-600 opacity-0 group-hover:opacity-90 transition-all duration-700 flex flex-col justify-center items-center text-center p-8 md:p-16">
-                 <h4 className="text-white text-3xl md:text-5xl font-black serif mb-4 md:mb-6 tracking-tighter leading-none">{creator.name}</h4>
-                 <div className="h-[1px] w-10 md:w-12 bg-white/30 mb-6 md:mb-8"></div>
-                 <div className="space-y-3 md:space-y-4 mb-8 md:mb-12">
-                   <p className="text-white/70 text-[9px] md:text-[10px] font-black uppercase tracking-ultra">{creator.followers} FOLLOWERS</p>
-                   <p className="text-white text-base md:text-lg font-light italic opacity-90 line-clamp-2">"{creator.slogan}"</p>
-                 </div>
-                 <button className="px-8 md:px-10 py-4 md:py-5 bg-white text-black rounded-xl font-black uppercase tracking-ultra text-[9px] hover:scale-105 transition-all">
-                    {t.gallery.viewVision}
-                 </button>
+                <span className="text-indigo-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">{creator.stats.vitIndex} VIT INDEX</span>
               </div>
             </div>
           ))}
         </section>
-
-        {/* Gatekeeper Section */}
-        {!searchResult && (
-          <section className="reveal p-16 md:p-32 bg-black rounded-[3rem] md:rounded-[4rem] text-center relative overflow-hidden text-white shadow-[0_60px_100px_-20px_rgba(0,0,0,0.4)]">
-             <div className="absolute inset-0 opacity-10">
-               <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200" className="w-full h-full object-cover grayscale" />
-             </div>
-             <div className="relative z-10 space-y-8 md:space-y-12">
-                <div className="inline-block px-6 md:px-8 py-2 md:py-3 border border-white/20 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-ultra text-white/50">
-                  {t.gallery.restricted}
-                </div>
-                <h3 className={`font-extrabold serif tracking-tighter leading-tight ${
-                  language === 'en' ? 'text-5xl md:text-7xl' : 'text-4xl md:text-6xl'
-                }`}>{t.gallery.unlock}</h3>
-                <p className="text-white/40 max-w-xl mx-auto font-light leading-relaxed text-base md:text-xl italic tracking-wide">
-                  {language === 'en' ? "Access the full database of 2,000+ elite storytellers hand-picked by our AI auditors." : "解锁包含 2,000+ 位由 AI 审计严选的顶级叙事者的完整名录。"}
-                </p>
-                <div className="pt-8 md:pt-12">
-                   <button className="px-10 md:px-16 py-5 md:py-7 bg-indigo-600 text-white rounded-full font-black uppercase tracking-ultra text-[10px] md:text-[11px] hover:bg-indigo-500 hover:scale-105 transition-all shadow-[0_25px_50px_-12px_rgba(99,102,241,0.5)]">
-                      Unlock Private Database
-                   </button>
-                </div>
-             </div>
-          </section>
-        )}
       </div>
 
-      {/* Creator Detail Drawer */}
+      {/* 🚀 100% IMAGE MATCH: Creator Detail Drawer */}
       {selectedCreator && (
         <div className="fixed inset-0 z-[300] flex justify-end">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-700" onClick={() => setSelectedCreator(null)}></div>
-          <div className="relative w-full max-w-2xl bg-white h-full shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-y-auto animate-drawer-in p-10 md:p-20 pt-24 md:pt-40 space-y-16 md:space-y-24">
-             <button onClick={() => setSelectedCreator(null)} className="fixed top-8 right-8 md:top-12 md:right-12 p-4 md:p-5 bg-gray-50/50 backdrop-blur-3xl rounded-full hover:bg-gray-100 transition-all z-[310]">
-               <X size={20} className="md:w-6 md:h-6 text-black" />
-             </button>
+          <div className="absolute inset-0 bg-black/5 backdrop-blur-[2px] transition-opacity duration-700" onClick={() => setSelectedCreator(null)}></div>
+          <div className="relative w-full md:w-[45vw] lg:w-[40vw] bg-white/95 backdrop-blur-3xl h-full shadow-[0_0_100px_rgba(0,0,0,0.1)] overflow-y-auto animate-drawer-in flex flex-col no-scrollbar">
              
-             <div className="flex flex-col items-center text-center gap-8 md:gap-10">
-                <div className="relative">
-                  <img src={selectedCreator.avatar} className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover ring-[12px] md:ring-[16px] ring-[#fcfcfc] shadow-2xl grayscale" />
-                  {searchResult && (
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1 bg-indigo-600 text-white text-[8px] font-black tracking-ultra rounded-full whitespace-nowrap">
-                      RANK #1 MATCH
+             {/* Header Visual */}
+             <div className="relative h-[45vh] w-full overflow-hidden shrink-0">
+               <img src={selectedCreator.avatar} className="w-full h-full object-cover grayscale contrast-125" />
+               <button onClick={() => setSelectedCreator(null)} className="absolute top-8 right-8 p-3 bg-white/20 backdrop-blur-xl rounded-full hover:bg-white transition-all text-white hover:text-black z-20">
+                 <X size={20} />
+               </button>
+             </div>
+
+             <div className="flex-1 p-8 md:p-14 space-y-16">
+               
+               {/* Identity Section (Kenzo Chen Image Reference) */}
+               <section className="text-center relative -mt-32 z-10">
+                  <div className="space-y-4 bg-white/60 backdrop-blur-3xl p-8 rounded-[3rem] border border-white shadow-2xl">
+                    <div className="flex items-center justify-center gap-4 mb-2">
+                       <div className="w-12 h-[1px] bg-indigo-600"></div>
+                       <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600">Creator Profile</span>
                     </div>
-                  )}
-                </div>
-                <div className="space-y-2 md:space-y-4">
-                   <h3 className="text-4xl md:text-6xl font-black serif text-black tracking-tighter leading-none">{selectedCreator.name}</h3>
-                   <p className="text-gray-400 italic font-light text-lg md:text-2xl leading-tight">"{selectedCreator.slogan}"</p>
-                </div>
-             </div>
+                    <h3 className="text-6xl md:text-7xl font-bold serif text-gray-900 leading-none tracking-tighter">{selectedCreator.name}</h3>
+                    <p className="text-2xl text-gray-400 font-light italic leading-tight">"{selectedCreator.slogan}"</p>
+                    
+                    {/* Performance Radar */}
+                    <div className="py-8 relative">
+                       <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-widest text-gray-300 opacity-40">Performance Radar</div>
+                       <CreatorRadarChart data={selectedCreator.stats} />
+                       
+                       <div className="flex justify-around items-center pt-8 border-t border-gray-50">
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-gray-900 leading-none">{selectedCreator.followers}</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Followers</p>
+                          </div>
+                          <div className="w-[1px] h-10 bg-gray-100"></div>
+                          <div className="text-center">
+                            <p className="text-3xl font-bold text-indigo-600 leading-none">{selectedCreator.engagementRate}%</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Engagement</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+               </section>
 
-             <div className="grid grid-cols-2 gap-4 md:gap-8">
-                <div className="p-8 md:p-10 bg-[#fafafa] rounded-[2rem] md:rounded-[2.5rem] border border-gray-100">
-                   <p className="text-[9px] md:text-[10px] font-black uppercase tracking-ultra text-gray-300 mb-1 md:mb-2 leading-none">VIT Score</p>
-                   <p className="text-4xl md:text-5xl font-black serif text-indigo-600 leading-none">{selectedCreator.stats.vitIndex}</p>
-                </div>
-                <div className="p-8 md:p-10 bg-[#fafafa] rounded-[2rem] md:rounded-[2.5rem] border border-gray-100">
-                   <p className="text-[9px] md:text-[10px] font-black uppercase tracking-ultra text-gray-300 mb-1 md:mb-2 leading-none">Reach</p>
-                   {/* Fix: Using selectedCreator instead of undefined creator */}
-                   <p className="text-4xl md:text-5xl font-black serif text-black leading-none">{selectedCreator.followers}</p>
-                </div>
-             </div>
+               {/* AI Recommendation Report Section */}
+               <section className="space-y-10">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shadow-lg shadow-indigo-100">
+                      <CheckCircle2 size={24} />
+                    </div>
+                    <div>
+                      <h4 className="text-3xl font-bold serif text-gray-900 leading-none">AI Recommendation Report</h4>
+                      <p className="text-xs text-gray-400 font-light italic underline decoration-indigo-200 decoration-4">Analysis by Gemini-3 Pro-Preview</p>
+                    </div>
+                  </div>
 
-             <div className="space-y-6 md:space-y-10 px-4 md:px-0">
-                <div className="flex items-center gap-4">
-                   <Sparkles size={18} className="text-indigo-600" />
-                   <h4 className="text-[10px] font-black uppercase tracking-ultra text-indigo-600 leading-none">{t.gallery.verdict}</h4>
-                </div>
-                <div className="bg-black p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden group">
-                   <div className="absolute top-0 right-0 p-8 text-white/5 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <BarChart3 size={150} />
-                   </div>
-                   <p className="relative font-mono text-sm md:text-base leading-relaxed text-white/80">
-                     <span className="text-indigo-400 mr-2">/ Analysis:</span>
-                     {language === 'en' ? "Creator exhibits cinematic Morandi palette. Audience retention is 42% above benchmark for HNW segments." : "该博主擅长低饱和度调色，其叙事逻辑紧密，完播率高于行业平均 42%。其核心受众精准集中于一线城市高净值群体。"}
-                   </p>
-                </div>
-             </div>
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* Content Style Card */}
+                    <div className="p-10 bg-gray-50/50 rounded-[2.5rem] border border-gray-100 space-y-6">
+                       <h5 className="text-base font-bold text-gray-900">Content Style</h5>
+                       <div className="flex flex-wrap gap-2">
+                         {selectedCreator.styles.map(s => (
+                           <span key={s} className="px-4 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold text-gray-500 uppercase tracking-widest">{s}</span>
+                         ))}
+                       </div>
+                       <p className="text-sm text-gray-600 leading-relaxed font-light">
+                         Highly cinematic approach with slow-pan transitions. Best suited for high-end boutique properties that prioritize aesthetics and architectural detail.
+                       </p>
+                    </div>
 
-             <div className="space-y-8 md:space-y-10 px-4 md:px-0">
-                <h4 className="text-[10px] font-black uppercase tracking-ultra text-gray-300 leading-none">Visual Portfolio Assets</h4>
-                <div className="grid grid-cols-3 gap-3 md:gap-6">
-                   {selectedCreator.representativeWorks.map((work, i) => (
-                      <div key={i} className="aspect-[9/16] rounded-xl md:rounded-[2rem] overflow-hidden bg-gray-100 relative group cursor-pointer shadow-lg">
-                         <img src={work} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                         <div className="absolute inset-0 bg-indigo-600/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play size={24} className="md:w-8 md:h-8 text-white fill-white" />
-                         </div>
-                      </div>
-                   ))}
-                </div>
-             </div>
+                    {/* Best Suited For Card */}
+                    <div className="p-10 bg-gray-50/50 rounded-[2.5rem] border border-gray-100 space-y-6">
+                       <h5 className="text-base font-bold text-gray-900">Best Suited For</h5>
+                       <div className="flex flex-wrap gap-2">
+                         {selectedCreator.scenes.map(s => (
+                           <span key={s} className="px-4 py-1.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold text-gray-500 uppercase tracking-widest">{s}</span>
+                         ))}
+                       </div>
+                       <p className="text-sm text-gray-600 leading-relaxed font-light">
+                         Ideal for quiet luxury resorts, destination marketing organizations, and premium luggage brands seeking long-form engagement.
+                       </p>
+                    </div>
+                  </div>
+               </section>
 
-             <div className="pt-10 md:pt-20 sticky bottom-0 bg-white/90 backdrop-blur-xl pb-10">
-                <button className="w-full py-6 md:py-8 bg-black text-white rounded-2xl md:rounded-3xl font-black uppercase tracking-ultra text-[10px] md:text-[11px] shadow-2xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-4 group">
-                   <UserPlus size={18} /> Add to Shortlist <ArrowRight className="group-hover:translate-x-2 transition-transform shrink-0" />
-                </button>
+               {/* Signature Storytelling (Image Showcase) */}
+               <section className="space-y-8">
+                  <h4 className="text-3xl font-bold serif text-gray-900">Signature Storytelling</h4>
+                  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl aspect-video relative group">
+                    <img src={selectedCreator.representativeWorks[0]} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-indigo-600/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer">
+                       <Play size={48} className="text-white fill-white" />
+                    </div>
+                  </div>
+               </section>
+
+               {/* Audience Insights & Tags */}
+               <section className="space-y-12">
+                  <div className="pb-4 border-b border-gray-100">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Audience Insights</h4>
+                  </div>
+                  
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={selectedCreator.audienceDemographics}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                        <XAxis dataKey="category" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 10}} dy={10} />
+                        <Bar dataKey="value" fill="#4f46e5" radius={[12, 12, 0, 0]} barSize={60} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-6">
+                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">AI Sentiment Tags</p>
+                     <div className="flex flex-wrap gap-x-8 gap-y-4">
+                       {selectedCreator.tags.map((tag, idx) => (
+                         <span 
+                           key={tag} 
+                           className={`font-bold serif italic text-gray-900 opacity-80 ${
+                             idx === 0 ? 'text-4xl' : idx === 1 ? 'text-3xl' : 'text-xl'
+                           }`}
+                         >
+                           {tag}
+                         </span>
+                       ))}
+                     </div>
+                  </div>
+               </section>
+
+               {/* Quick Contact & Footer Branding */}
+               <section className="pt-10">
+                  <div className="bg-indigo-600 p-12 rounded-[3.5rem] text-white shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Zap size={200} />
+                     </div>
+                     <p className="text-[10px] font-black uppercase tracking-ultra opacity-60 mb-6">Quick Contact</p>
+                     <h3 className="text-3xl font-bold mb-10 leading-tight">Interested in working with {selectedCreator.name.split(' ')[0]}?</h3>
+                     <button className="w-full py-6 bg-white text-indigo-600 rounded-2xl font-black uppercase tracking-ultra text-[10px] flex items-center justify-center gap-3 hover:bg-gray-50 transition-all shadow-xl">
+                        Book Campaign <Send size={16} />
+                     </button>
+                  </div>
+
+                  <div className="mt-20 py-20 bg-gray-950 -mx-14 px-14 text-white">
+                    <h2 className="text-3xl font-bold serif mb-8 tracking-tighter leading-none">GLOBALTRAVEL <span className="text-indigo-500 italic">AI</span></h2>
+                    <p className="text-gray-500 text-sm leading-relaxed font-light max-w-sm">
+                      Empowering the world's most iconic travel brands with data-driven storytelling and global influencer intelligence.
+                    </p>
+                  </div>
+               </section>
+
              </div>
           </div>
         </div>
@@ -380,12 +394,14 @@ const Gallery: React.FC = () => {
 
       <style>{`
         @keyframes drawer-in {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
         }
         .animate-drawer-in {
-          animation: drawer-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: drawer-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
