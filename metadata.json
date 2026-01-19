@@ -1,0 +1,8 @@
+{
+  "name": "GlobalTravel AI Marketing",
+  "description": "An AI-powered influencer marketing platform for the global travel industry, featuring intelligent creator matching and high-end data visualization.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
